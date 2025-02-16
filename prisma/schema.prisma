@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator dbml {
+  provider = "prisma-dbml-generator"
+}
+
+enum MemberRole {
+  BACKEND
+  FRONTEND
+  UI_UX
+}
+
+model Members {
+  id         Int              @id @default(autoincrement())
+  name       String
+  role       String
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+  deletedAt  DateTime?
+  assignedAt DateTime?
+
+  assignments Member_Projects[]
+}
+
+model Projects {
+  id          Int              @id @default(autoincrement())
+  name        String
+  description String
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  assignments Member_Projects[]
+}
+
+model Member_Projects {
+  id         Int      @id @default(autoincrement())
+  member_id  Int
+  project_id Int
+  assignedAt DateTime @default(now())
+
+  member     Members  @relation(fields: [member_id], references: [id])
+  project    Projects @relation(fields: [project_id], references: [id])
+
+  @@unique([member_id, project_id])
+}
